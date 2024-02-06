@@ -1,0 +1,13 @@
+**/*.or
+simp/depend.mk
+simp/maplesat_static
+core/depend.mk
+core/maplesat_static
+tests/solvers/
+*.out
+*.zip
+venv/
+**/summary.csv
+**/*.log
+**/temp/
+**/temp_withd/
