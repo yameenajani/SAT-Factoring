@@ -628,8 +628,8 @@ bool coppersmith(mpz_t N_num, mpz_t p_tilda_num, int is_lsb) {
                 } else {
                     val = false;
                 }
-                mpz_clear(mpz_val);
             }
+            mpz_clear(mpz_val);
         } else {
             val = false;
         }
