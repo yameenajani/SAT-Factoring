@@ -55,11 +55,7 @@ __<u>Folder structure for tests</u>__
 
 __<u>How to run</u>__
 
-First, load all dependencies and compile the solver by running -
-```
-./compile_solver.sh
-```
-This will put the compiled version of the solver in the [`tests/solvers/`](tests/solvers/) directory.
+First, load all dependencies and compile the solver by running `make`.  This will put the compiled version of the solver in the [`tests/solvers/`](tests/solvers/) directory.
 
 To run the provided test cases, `cd` into the [`tests/`](tests/) directory and run the following -
 ```
