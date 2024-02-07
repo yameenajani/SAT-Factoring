@@ -42,7 +42,7 @@ __<u>Folder structure for tests</u>__
             - `temp/` (contains modified instances with random known bits of p, q)
                 - `{percent}/` (the percent of random known bits)
                     - `instance.cnf`
-            - `temp_withd/` (contains modified instances with random known bits of p, q and d)
+            - `temp_withd/` (contains modified instances with random known bits of p, q along with the low public exponent encoding)
                 - `{percent}/` (the percent of random known bits)
                     - `instance.cnf`
     - `solvers/`
@@ -55,7 +55,11 @@ __<u>Folder structure for tests</u>__
 
 __<u>How to run</u>__
 
-First, load all dependencies and compile the solver by running `make`.  This will put the compiled version of the solver in the [`tests/solvers/`](tests/solvers/) directory.
+First, load all dependencies and compile the solver by running -
+```
+./compile_solver.sh
+```
+This will put the compiled version of the solver in the [`tests/solvers/`](tests/solvers/) directory.
 
 To run the provided test cases, `cd` into the [`tests/`](tests/) directory and run the following -
 ```
@@ -67,23 +71,27 @@ For example, if you wish to run the code on [`tests/instances/128/75/instance_1.
 ```
 If you want to include `d`, you can use the `-d` flag and run the following command -
 ```
-./run_test_case.sh -b {bitsize} -p {percent} -i {instance number} -d true
+./run_test_case.sh -b {bitsize} -p {percent} -i {instance number} -d
 ```
+
+> [!NOTE]
+> <br>You will not be able to run instances that don't exist. You will need to create new instances if you want to run custom test cases
 
 <br>
 
-To run custom test cases, again `cd` into the [`tests/`](tests/) directory and run the following -
+To generate custom test cases, first you need to create the data file for the test case. To do this, `cd` into the [`tests/scripts/`](tests/scripts/) directory and run the following commands in sequence -
 ```
-./run_custom_test.sh -b {bitsize} -p {percent}
+./gen_nums.py {bitsize} {number_of_instaces_to_generate}
+
+./get_instance.sh -b {bitsize} -n {number_of_instaces_to_generate}
 ```
-For example, if you wish to run the code on an instance where `len(primes) = 128` with `75%` known bits then you would run -
+For example, if you wish to generate 3 data files for 256-bit N then you would run -
 ```
-./run_custom_test.sh -b 128 -p 75
+./gen_nums.py 128 3
+
+./get_instance.sh -b 128 -n 3
 ```
-If you want to include `d`, you can use the `-d` flag and run the following command -
-```
-./run_custom_test.sh -b {bitsize} -p {percent} -d true
-```
+After this you can simply run the [`run_test_case.sh`](tests/run_test_case.sh) script with correct parameters as mentioned above.
 
 <br>
 

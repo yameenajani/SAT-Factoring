@@ -21,14 +21,15 @@ def main():
     num_instances = int(sys.argv[2])
     for bitsize in bitsizes:
         for i in range(1, num_instances+1):
-            if os.path.exists("../data/{}/data_{}.json".format(bitsize, i)):
+            # Uncomment below code to update links to the insatance
+            ''' if os.path.exists("../data/{}/data_{}.json".format(bitsize, i)):
                 with open("../data/{}/data_{}.json".format(bitsize, i), "r") as f:
                     data = json.load(f)
                     p = data['p']
                     q = data['q']
                     n = data['n']
-            else:
-                p, q, n = generate_test_case(bitsize)
+            else: '''
+            p, q, n = generate_test_case(bitsize)
             weblink = "https://cgi.luddy.indiana.edu/~sabry/cnf.cgi?factor={}&Adder=nbit&Multiplier=recursive".format(n)
             html_page = urllib.request.urlopen(weblink)
             soup = BeautifulSoup(html_page, "html.parser")
@@ -43,6 +44,8 @@ def main():
 
             json_obj = json.dumps(data, indent=4)
 
+            if not (os.path.exists("../data/{}".format(bitsize))):
+                os.makedirs("../data/{}".format(bitsize))
             # Even if the file already exists, the weblink may need to be updated
             with open("../data/{}/data_{}.json".format(bitsize, i), "w") as f:
                 f.write(json_obj)
