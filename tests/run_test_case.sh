@@ -43,19 +43,19 @@ mkdir -p ../output
 mkdir -p ../output/$bitsize
 if [ $include_d -eq 1 ]
 then
-    mkdir -p ../output/$bitsize/with_d/$percent
-    mkdir -p ../output/$bitsize/with_d/$percent/SAT
+    mkdir -p outputs/$bitsize/with_d/$percent
+    mkdir -p outputs/$bitsize/with_d/$percent/SAT
 else
-    mkdir -p ../output/$bitsize/$percent
-    mkdir -p ../output/$bitsize/$percent/SAT
+    mkdir -p outputs/$bitsize/$percent
+    mkdir -p outputs/$bitsize/$percent/SAT
 fi
 
 echo "Running only SAT"
 if [ $include_d -eq 1 ]
 then
-    command="./solvers/maplesat_cb -only-sat instances/$bitsize/temp_withd/$percent/instance_$instance.cnf | tee ../output/$bitsize/with_d/$percent/SAT/output_$instance.log"
+    command="./solvers/maplesat_cb -only-sat instances/$bitsize/temp_withd/$percent/instance_$instance.cnf | tee outputs/$bitsize/with_d/$percent/SAT/output_$instance.log"
 else
-    command="./solvers/maplesat_cb -only-sat instances/$bitsize/temp/$percent/instance_$instance.cnf | tee ../output/$bitsize/$percent/SAT/output_$instance.log"
+    command="./solvers/maplesat_cb -only-sat instances/$bitsize/temp/$percent/instance_$instance.cnf | tee outputs/$bitsize/$percent/SAT/output_$instance.log"
 fi
 echo $command
 eval $command

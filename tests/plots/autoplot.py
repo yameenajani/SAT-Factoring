@@ -10,18 +10,18 @@ import os
 keysizes = [16, 32, 48, 64, 80, 96, 112, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800, 832, 864, 896, 928, 960, 992, 1024]
 percentages = [90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25]
 
-def get_summary(bitsize, percent, include_d):
+def get_summary(bitsize, percent, num_instances, include_d):
     sat_timings = []
 
     cas_lo_times = []
     cs_lo_times = []
     cs_lo_counts = []
     
-    cas_hi_times = []
-    cs_hi_times = []
-    cs_hi_counts = []
+    # cas_hi_times = []
+    # cs_hi_times = []
+    # cs_hi_counts = []
 
-    for i in range(1, 16):
+    for i in range(1, num_instances+1):
         try:
             if not include_d:
                 with open("../outputs/{}/{}/SAT/output_{}.log".format(bitsize, percent, i), "r") as satf:
@@ -140,36 +140,32 @@ def main():
     parser.add_argument("-t", "--type", type=int, help="Select the type of plot you want. 1 - Varying N; 2 - Varying %% Known Bits", required=True)
     parser.add_argument("-p", "--percent", type=int, help="Select the percentage you want to generate the plot for. Only applicable when type=1")
     parser.add_argument("-n", "--nbits", type=int, help="Select the bitsize of N you want to generate the plot for. Only applicable when type=2")
+    parser.add_argument("-num", "--num_instances", type=int, help="Select the bitsize of N you want to generate the plot for. Only applicable when type=2", required=True)
     parser.add_argument("-par", "--parameter", type=int, help="Select the parameter to generate the plot. 1 - Median; 2 - Mean. Default value is 1.", nargs='?', const=1, default=1)
     parser.add_argument("-d", "--include_d", help="Enable if you want to plot results with d.", action='store_true')
-    parser.add_argument("-hi", "--include_hi", help="Enable if you want to plot results with the -hi method.", action='store_true')
+    # parser.add_argument("-hi", "--include_hi", help="Enable if you want to plot results with the -hi method.", action='store_true')
     args = parser.parse_args()
 
     plot_type = args.type
     param = args.parameter
     include_d = args.include_d
-    include_hi = args.include_hi
-    solver =  args.solver
+    # include_hi = args.include_hi
+    num_instances = args.num_instances
     if include_d:
         print("Including d")
-    sat_cas_label = "SAT+CAS (Low)" if include_hi else "SAT+CAS"
+    # sat_cas_label = "SAT+CAS (Low)" if include_hi else "SAT+CAS"
+    sat_cas_label = "SAT+CAS"
     if plot_type==1:
         percent = args.percent
         if percent is None:
             raise Exception("-p value missing. This type of plot requires a percentage to be specified.")
         sat_times = []
         lo_times = []
-        hi_times = []
+        # hi_times = []
         keys = []
         for val in keysizes:
             print("Processing {}".format(val))
-            if solver==1:
-                get_summary(val//2, percent, include_d)
-            elif solver==2:
-                get_summary_cadical(val//2, percent, include_d)
-            else:
-                print("Wrong solver choice")
-                exit(0)
+            get_summary(val//2, percent, num_instances, include_d)
             if not include_d:
                 df = pd.read_csv("../outputs/{}/{}/summary.csv".format(val//2, percent))
             else:
@@ -178,15 +174,13 @@ def main():
                 pname = "Median"
                 sat_times.append(df["Median SAT Time"][0])
                 lo_times.append(df["Median CAS (Low) Time"][0])
-                hi_times.append(df["Median CAS (High) Time"][0])
-                if sat_times[-1] < np.inf or lo_times[-1] < np.inf or hi_times[-1] < np.inf:
+                if sat_times[-1] < np.inf or lo_times[-1] < np.inf:
                     keys.append(val)
             elif param==2:
                 pname = "Mean"
                 sat_times.append(df["Mean SAT Time"][0])
                 lo_times.append(df["Mean CAS (Low) Time"][0])
-                hi_times.append(df["Mean CAS (High) Time"][0])
-                if sat_times[-1] < np.inf or lo_times[-1] < np.inf or hi_times[-1] < np.inf:
+                if sat_times[-1] < np.inf or lo_times[-1] < np.inf:
                     keys.append(val)
             else:
                 print("Please select correct parameter type.")
@@ -208,8 +202,8 @@ def main():
 
         # Plot the data as a line graph
         ax.plot(keysizes, lo_times, label=sat_cas_label, marker='.')
-        if include_hi:
-            ax.plot(keysizes, hi_times, label="SAT+CAS (High)", marker='.')
+        # if include_hi:
+        #     ax.plot(keysizes, hi_times, label="SAT+CAS (High)", marker='.')
         ax.plot(keysizes, sat_times, label="SAT", marker='.')
 
         if not include_d:
@@ -230,7 +224,7 @@ def main():
             raise Exception("-n value missing. This type of plot requires a bitsize of N to be specified.")
         sat_times = []
         lo_times = []
-        hi_times = []
+        # hi_times = []
         for val in percentages:
             print("Processing {}%".format(val))
             get_summary(nbits//2, val, include_d)
@@ -242,12 +236,10 @@ def main():
                 pname = "Median"
                 sat_times.append(df["Median SAT Time"][0])
                 lo_times.append(df["Median CAS (Low) Time"][0])
-                hi_times.append(df["Median CAS (High) Time"][0])
             elif param==2:
                 pname = "Mean"
                 sat_times.append(df["Mean SAT Time"][0])
                 lo_times.append(df["Mean CAS (Low) Time"][0])
-                hi_times.append(df["Mean CAS (High) Time"][0])
             else:
                 print("Please select correct parameter type.")
                 exit(0)
@@ -264,8 +256,8 @@ def main():
 
         # Plot the data as a line graph
         ax2.plot(percentages, lo_times, label=sat_cas_label, marker='.')
-        if include_hi:
-            ax2.plot(percentages, hi_times, label="SAT+CAS (High)", marker='.')
+        # if include_hi:
+        #     ax2.plot(percentages, hi_times, label="SAT+CAS (High)", marker='.')
         ax2.plot(percentages, sat_times, label="SAT", marker='.')
         ax2.invert_xaxis()
         if not include_d:
