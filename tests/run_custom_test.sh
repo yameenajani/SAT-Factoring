@@ -22,17 +22,17 @@ cd ../
 echo "Running SAT+CAS"
 if [ $include_d -eq 1 ]
 then
-    ./solvers/maplesat_cb instances/$bitsize/temp_withd/$percent/instance_1.cnf > ../output/$bitsize/with_d/$percent/output_1.log
+    ./solvers/maplesat_cb instances/$bitsize/temp_withd/$percent/instance_1.cnf > outputs/$bitsize/with_d/$percent/output_1.log
 else
-    ./solvers/maplesat_cb instances/$bitsize/temp/$percent/instance_1.cnf > ../output/$bitsize/$percent/output_1.log
+    ./solvers/maplesat_cb instances/$bitsize/temp/$percent/instance_1.cnf > outputs/$bitsize/$percent/output_1.log
 fi
 echo "Finished running SAT+CAS"
 echo "Running only SAT"
 if [ $include_d -eq 1 ]
 then
-    ./solvers/maplesat_cb -only-sat instances/$bitsize/temp_withd/$percent/instance_1.cnf > ../output/$bitsize/with_d/$percent/SAT/output_1.log
+    ./solvers/maplesat_cb -only-sat instances/$bitsize/temp_withd/$percent/instance_1.cnf > outputs/$bitsize/with_d/$percent/SAT/output_1.log
 else
-    ./solvers/maplesat_cb -only-sat instances/$bitsize/temp/$percent/instance_1.cnf > ../output/$bitsize/$percent/SAT/output_1.log
+    ./solvers/maplesat_cb -only-sat instances/$bitsize/temp/$percent/instance_1.cnf > outputs/$bitsize/$percent/SAT/output_1.log
 fi
 echo "Finished running only SAT"
 echo "Output files available in tests/outputs/$bitsize/ dir"
