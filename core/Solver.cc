@@ -97,10 +97,9 @@ static DoubleOption  opt_reward_multiplier (_cat, "reward-multiplier", "Reward m
 #endif
 
 mpz_t mpz_NUM;
-mpz_t pq_temp, p_temp, q_temp, pow2, pow4;
+mpz_t mpz_X, pq_temp, p_temp, q_temp, pow2, pow4;
 mpz_t cs_prime;
 int prime_len;
-mpfr_prec_t MPFR_PREC;
 int p_msb_count;
 vector<char> bits_msb_p1;
 vector<char> bits_lsb_p1;
@@ -212,17 +211,18 @@ Solver::~Solver()
 {
     mpz_clear(mpz_NUM);
     mpz_clear(cs_prime);
-    mpz_clears(pq_temp, p_temp, q_temp, pow2, pow4, NULL);
+    mpz_clears(mpz_X, pq_temp, p_temp, q_temp, pow2, pow4, NULL);
 }
 
 void Solver::setInstanceVariables()
 {
     mpz_init_set_str(mpz_NUM, cb_num.c_str(), 10);
     mpz_init(cs_prime);
-    mpz_inits(pq_temp, p_temp, q_temp, pow2, pow4, NULL);
+    mpz_inits(mpz_X, pq_temp, p_temp, q_temp, pow2, pow4, NULL);
+    mpz_root(mpz_X, mpz_NUM, 5);
+    mpz_tdiv_q_2exp(mpz_X, mpz_X, 2);
     prime_len = p_msb_var;
-    MPFR_PREC = prime_len*9;
-    p_msb_count = ceil(prime_len * 0.6);
+    p_msb_count = prime_len - mpz_sizeinbase(mpz_X, 2);
     bits_msb_p1.reserve(prime_len);
     bits_lsb_p1.reserve(p_msb_count);
     bits_msb_p2.reserve(prime_len);
@@ -448,113 +448,71 @@ Lit Solver::pickBranchLit()
 }
 
 // CUSTOM COPPERSMITH IMPLEMENTATION
-void nCr(mpfr_t rop, int n, int r, mpfr_t p_tilda) {
-    mpfr_t temp1, temp2, temp3;
+void nCr(mpz_t rop, int n, int r, mpz_t p_tilda) {
+    mpz_t t1, t2;
+    mpz_inits(t1, t2, NULL);
 
-    mpfr_init2(temp1, MPFR_PREC);
-    mpfr_init2(temp2, MPFR_PREC);
-    mpfr_init2(temp3, MPFR_PREC);
+    mpz_bin_uiui(t1, n, r);
+    mpz_pow_ui(t2, p_tilda, n-r);
+    mpz_mul(rop, t1, t2);
 
-    mpfr_fac_ui(temp1, n, MPFR_RNDD);
-    mpfr_fac_ui(temp2, r, MPFR_RNDD);
-    mpfr_fac_ui(temp3, n-r, MPFR_RNDD);
-    mpfr_mul(temp2, temp2, temp3, MPFR_RNDD);
-    mpfr_div(temp1, temp1, temp2, MPFR_RNDD);
-    mpfr_pow_ui(temp2, p_tilda, n-r, MPFR_RNDD);
-    mpfr_mul(temp1, temp1, temp2, MPFR_RNDD);
-    mpfr_set(rop, temp1, MPFR_RNDD);
-
-    mpfr_clear(temp1);
-    mpfr_clear(temp2);
-    mpfr_clear(temp3);
-    mpfr_free_cache();
+    mpz_clears(t1, t2, NULL);
 }
 
 bool coppersmith(mpz_t N_num, mpz_t p_tilda_num, int is_lsb) {
     cs_count += 1;
-    mpfr_t N, p_tilda, len_N, len_p, X, power, temp, temp2;
-    mpz_t prime, num, to_make_monic;
+    mpz_t prime, num, to_make_monic, t, t2, p_tilda;
     unsigned int len_knownbits = p_msb_count, h = 2, k;
     k = 2*h;
 
-    mpz_init(prime);
-    mpz_init(num);
-    mpz_init(to_make_monic);
-
-    mpfr_init2(N, MPFR_PREC);
-    mpfr_init2(p_tilda, MPFR_PREC);
-    mpfr_init2(len_N, MPFR_PREC);
-    mpfr_init2(len_p, MPFR_PREC);
-    mpfr_init2(X, MPFR_PREC);
-    mpfr_init2(temp, MPFR_PREC);
-    mpfr_init2(temp2, MPFR_PREC);
-    mpfr_init2(power, MPFR_PREC);
-
-    mpfr_set_z(N, N_num, MPFR_RNDZ);
+    mpz_inits(prime, num, to_make_monic, t, t2, p_tilda, NULL);
 
     if(is_lsb) {
         mpz_ui_pow_ui(to_make_monic, 2, len_knownbits);
         mpz_invert(to_make_monic, to_make_monic, N_num);
         mpz_mul(to_make_monic, to_make_monic, p_tilda_num);
-        mpfr_set_z(p_tilda, to_make_monic, MPFR_RNDD);
+        mpz_set(p_tilda, to_make_monic);
     } else {
-        mpfr_set_z(p_tilda, p_tilda_num, MPFR_RNDD);
+        mpz_set(p_tilda, p_tilda_num);
     }
 
-    mpfr_log2(temp, N, MPFR_RNDD);
-    mpfr_add_ui(temp, temp, 1, MPFR_RNDD);
-    mpfr_floor(len_N, temp);
-
-    mpfr_div_ui(len_p, len_N, 2, MPFR_RNDD);
-
-    mpfr_sub_ui(temp, len_p, len_knownbits, MPFR_RNDD);
-    mpfr_add_ui(temp, temp, 2, MPFR_RNDD);
-    mpfr_div(power, temp, len_N, MPFR_RNDD);
-
-    mpfr_pow(temp, N, power, MPFR_RNDU);
-    mpfr_sqrt_ui(temp2, 2, MPFR_RNDD);
-    mpfr_mul_ui(temp2, temp2, 2, MPFR_RNDD);
-    mpfr_div(temp, temp, temp2, MPFR_RNDD);
-    mpfr_floor(X, temp);
-
-    mpfr_t polys[k+1][k+1];
+    mpz_t polys[k+1][k+1];
     for(int i = 0; i < k+1; i++) {
         for(int j = 0; j < k+1; j++) {
-            mpfr_init2(polys[i][j], MPFR_PREC);
-            mpfr_set_ui(polys[i][j], 0, MPFR_RNDD);
+            mpz_init(polys[i][j]);
         }
     }
 
     int z;
-    mpfr_t coeff;
-    mpfr_init2(coeff, MPFR_PREC);
+    mpz_t coeff;
+    mpz_init(coeff);
 
     for(int i = 0; i < h+1; i++) {
-        mpfr_pow_ui(temp, N, h-i, MPFR_RNDU);
+        mpz_pow_ui(t, mpz_NUM, h-i);
         for(int j = 0; j < i+1; j++) {
-            nCr(temp2, i, j, p_tilda);
-            mpfr_mul(coeff, temp, temp2, MPFR_RNDD);
-            mpfr_pow_ui(temp2, X, j, MPFR_RNDD);
-            mpfr_mul(coeff, coeff, temp2, MPFR_RNDD);
-            mpfr_set(polys[i][j], coeff, MPFR_RNDD);
+            nCr(t2, i, j, p_tilda);
+            mpz_mul(coeff, t, t2);
+            mpz_pow_ui(t2, mpz_X, j);
+            mpz_mul(coeff, coeff, t2);
+            mpz_set(polys[i][j], coeff);
         }
         z = i;
     }
     z++;
     for(int i = 1; i < k-h+1; i++) {
         for(int j = 0; j < h+1; j++) {
-            nCr(temp, h, j, p_tilda);
-            mpfr_set(polys[z][j+i], temp, MPFR_RNDD);
+            nCr(t, h, j, p_tilda);
+            mpz_set(polys[z][j+i], t);
         }
         for(int j = 0; j < h+i+1; j++) {
-            mpfr_pow_ui(temp2, X, j, MPFR_RNDD);
-            mpfr_mul(coeff, polys[z][j], temp2, MPFR_RNDD);
-            mpfr_set(polys[z][j], coeff, MPFR_RNDD);
+            mpz_pow_ui(t2, mpz_X, j);
+            mpz_mul(coeff, polys[z][j], t2);
+            mpz_set(polys[z][j], coeff);
         }
         z++;
     }
 
-    mpz_t mpz_polys[k+1][k+1];
+    mpz_clear(coeff);
 
     ZZ_mat<mpz_t> * FPlllMat;
     Z_NR<mpz_t>  zval;
@@ -563,9 +521,7 @@ bool coppersmith(mpz_t N_num, mpz_t p_tilda_num, int is_lsb) {
 
     for(int i = 0; i < k+1; i++) {
       for(int j = 0; j < k+1; j++) {
-        mpz_init(mpz_polys[i][j]);
-        mpfr_get_z(mpz_polys[i][j], polys[i][j], MPFR_RNDD);
-        zval = mpz_polys[i][j];
+        zval = polys[i][j];
         (*FPlllMat)[i][j] = zval;
       }
     }
@@ -576,23 +532,20 @@ bool coppersmith(mpz_t N_num, mpz_t p_tilda_num, int is_lsb) {
     fmpz_poly_init(pol);
 
     mpz_t red_coef, temp_var;
-    mpz_init(red_coef);
-    mpz_init(temp_var);
+    mpz_inits(red_coef, temp_var, NULL);
 
     fmpz_t fmpz_var;
     fmpz_init(fmpz_var);
 
     for(int i=0; i<k+1; i++) {
         (*FPlllMat)[0][i].get_mpz(red_coef);
-        mpfr_get_z(temp_var, X, MPFR_RNDD);
-        mpz_pow_ui(temp_var, temp_var, i);
+        mpz_pow_ui(temp_var, mpz_X, i);
         mpz_div(red_coef, red_coef, temp_var);
         fmpz_set_mpz(fmpz_var, red_coef);
         fmpz_poly_set_coeff_fmpz(pol, i, fmpz_var);
     }
 
-    mpz_clear(temp_var);
-    mpz_clear(red_coef);
+    mpz_clears(temp_var, red_coef, NULL);
 
     fmpz_poly_factor_t factors;
     fmpz_poly_factor_init(factors);
@@ -640,26 +593,13 @@ bool coppersmith(mpz_t N_num, mpz_t p_tilda_num, int is_lsb) {
     fmpz_poly_factor_clear(factors);
     fmpz_poly_clear(pol);
 
-    mpfr_clear(N);
-    mpfr_clear(p_tilda);
-    mpfr_clear(len_N);
-    mpfr_clear(len_p);
-    mpfr_clear(X);
-    mpfr_clear(temp);
-    mpfr_clear(temp2);
-    mpfr_clear(power);
-    mpfr_clear(coeff);
     for(int i = 0; i < k+1; i++) {
       for(int j = 0; j < k+1; j++) {
-        mpz_clear(mpz_polys[i][j]);
-        mpfr_clear(polys[i][j]);
+        mpz_clear(polys[i][j]);
       }
     }
-    mpfr_free_cache();
 
-    mpz_clear(prime);
-    mpz_clear(num);
-    mpz_clear(to_make_monic);
+    mpz_clears(prime, num, to_make_monic, t, t2, p_tilda, NULL);
 
     delete FPlllMat;
 
