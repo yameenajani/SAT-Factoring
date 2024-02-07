@@ -24,7 +24,7 @@ LFLAGS    ?=
 COPTIMIZE ?= -O3
 
 CFLAGS    += -I$(MROOT) -D __STDC_LIMIT_MACROS -D __STDC_FORMAT_MACROS
-LFLAGS    += -lflint -lfplll -lmpfr -lgmp -lgmpxx -lz
+LFLAGS    += -lflint -lfplll -lgmp -lgmpxx -lz
 
 .PHONY : s p d r rs clean 
 

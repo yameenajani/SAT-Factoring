@@ -27,7 +27,6 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <obstack.h>
 #include <stdint.h>
 #include <gmp.h>
-#include <mpfr.h>
 #include <cstring>
 #include <fplll.h>
 #include "flint/fmpz_polyxx.h"

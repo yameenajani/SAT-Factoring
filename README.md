@@ -18,7 +18,6 @@ __<u>Dependencies</u>__
 
 The following are the dependencies required to run the code -
 * [GMP](https://gmplib.org/)
-* [MPFR](https://www.mpfr.org/)
 * [fpLLL](https://github.com/fplll/fplll)
 * [FLINT](https://flintlib.org/)
 * [gcc](https://gcc.gnu.org/)
