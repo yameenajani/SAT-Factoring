@@ -1,6 +1,6 @@
 #!/bin/bash
 include_d=0
-while getopts b:p:i:d: flag
+while getopts b:p:i:d flag
 do
     case "${flag}" in
         b) bitsize=${OPTARG};;
@@ -31,7 +31,7 @@ fi
 cd scripts
 if [ $include_d -eq 1 ]
 then
-    command="./init_solver.sh -b $bitsize -p $percent -i $instance -d true"
+    command="./init_solver.sh -b $bitsize -p $percent -i $instance -d"
 else
     command="./init_solver.sh -b $bitsize -p $percent -i $instance"
 fi
