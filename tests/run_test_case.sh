@@ -28,6 +28,19 @@ then
     exit
 fi
 
+if ! [ -f instances/$bitsize/new_instances/instance_$instance.cnf ];
+then
+    if ! [ -f data/$bitsize/data_$instance.json ];
+    then
+        cd scripts
+        ./gen_nums.py $bitsize $instance
+        cd ..
+    fi
+    cd scripts
+    ./get_instance.sh -b $bitsize -i $instance
+    cd ..
+fi
+
 cd scripts
 if [ $include_d -eq 1 ]
 then

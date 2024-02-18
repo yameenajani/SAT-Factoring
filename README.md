@@ -74,11 +74,11 @@ If you want to include `d`, you can use the `-d` flag and run the following comm
 ```
 
 > [!NOTE]
-> <br>You will not be able to run instances that don't exist. You will need to create new instances if you want to run custom test cases
+> <br>You will not be able to run instances that don't exist. You will need to create new instances if you want to run custom test cases. The `run_test_case.sh` script will handle this for you. Just provide an instance number that does not exist to create a new test case.
 
 <br>
 
-To generate custom test cases, first you need to create the data file for the test case. To do this, `cd` into the [`tests/scripts/`](tests/scripts/) directory and run the following commands in sequence -
+<!-- To generate custom test cases, first you need to create the data file for the test case. To do this, `cd` into the [`tests/scripts/`](tests/scripts/) directory and run the following commands in sequence -
 ```
 ./gen_nums.py {bitsize} {number_of_instaces_to_generate}
 
@@ -92,6 +92,6 @@ For example, if you wish to generate 3 data files for 256-bit N then you would r
 ```
 After this you can simply run the [`run_test_case.sh`](tests/run_test_case.sh) script with correct parameters as mentioned above.
 
-<br>
+<br> -->
 
 In both cases the instance is solved using SAT+CAS as well as standalone SAT methods. The output files will be present in the [`tests/outputs/`](tests/outputs/) directory and will be available to view once execution of the corresponding method is complete.
