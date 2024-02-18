@@ -26,27 +26,27 @@ def main():
                 p = data['p']
                 q = data['q']
                 n = data['n']
-            else:
-                p, q, n = generate_test_case(bitsize)
-            weblink = "https://cgi.luddy.indiana.edu/~sabry/cnf.cgi?factor={}&Adder=nbit&Multiplier=recursive".format(n)
-            html_page = urllib.request.urlopen(weblink)
-            soup = BeautifulSoup(html_page, "html.parser")
-            for link in soup.findAll('a'):
-                l = link.get('href')
-            data = {
-                "p": int(p) if p<q else int(q),
-                "q": int(q) if p<q else int(p),
-                "n": int(n),
-                "link": "https://cgi.luddy.indiana.edu/~sabry/" + "{}".format(l)
-            }
+        else:
+            p, q, n = generate_test_case(bitsize)
+        weblink = "https://cgi.luddy.indiana.edu/~sabry/cnf.cgi?factor={}&Adder=nbit&Multiplier=recursive".format(n)
+        html_page = urllib.request.urlopen(weblink)
+        soup = BeautifulSoup(html_page, "html.parser")
+        for link in soup.findAll('a'):
+            l = link.get('href')
+        data = {
+            "p": int(p) if p<q else int(q),
+            "q": int(q) if p<q else int(p),
+            "n": int(n),
+            "link": "https://cgi.luddy.indiana.edu/~sabry/" + "{}".format(l)
+        }
 
-            json_obj = json.dumps(data, indent=4)
+        json_obj = json.dumps(data, indent=4)
 
-            if not (os.path.exists("../data/{}".format(bitsize))):
-                os.makedirs("../data/{}".format(bitsize))
-            # Even if the file already exists, the weblink may need to be updated
-            with open("../data/{}/data_{}.json".format(bitsize, insatance_num), "w") as f:
-                f.write(json_obj)
+        if not (os.path.exists("../data/{}".format(bitsize))):
+            os.makedirs("../data/{}".format(bitsize))
+        # Even if the file already exists, the weblink may need to be updated
+        with open("../data/{}/data_{}.json".format(bitsize, insatance_num), "w") as f:
+            f.write(json_obj)
 
 if __name__ == '__main__':
     main()
