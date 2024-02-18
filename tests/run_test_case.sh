@@ -1,6 +1,6 @@
 #!/bin/bash
 include_d=0
-while getopts b:p:i:d: flag
+while getopts b:p:i:d flag
 do
     case "${flag}" in
         b) bitsize=${OPTARG};;
@@ -44,7 +44,7 @@ fi
 cd scripts
 if [ $include_d -eq 1 ]
 then
-    command="./init_solver.sh -b $bitsize -p $percent -i $instance -d true"
+    command="./init_solver.sh -b $bitsize -p $percent -i $instance -d"
 else
     command="./init_solver.sh -b $bitsize -p $percent -i $instance"
 fi
@@ -52,8 +52,8 @@ echo $command
 eval $command
 cd ..
 
-mkdir -p ../output
-mkdir -p ../output/$bitsize
+mkdir -p outputs
+mkdir -p outputs/$bitsize
 if [ $include_d -eq 1 ]
 then
     mkdir -p outputs/$bitsize/with_d/$percent
@@ -77,9 +77,9 @@ echo "Finished running only SAT"
 echo "Running SAT+CAS"
 if [ $include_d -eq 1 ]
 then
-    command="./solvers/maplesat_cb instances/$bitsize/temp_withd/$percent/instance_$instance.cnf | tee ../output/$bitsize/with_d/$percent/output_$instance.log"
+    command="./solvers/maplesat_cb instances/$bitsize/temp_withd/$percent/instance_$instance.cnf | tee outputs/$bitsize/with_d/$percent/output_$instance.log"
 else
-    command="./solvers/maplesat_cb instances/$bitsize/temp/$percent/instance_$instance.cnf | tee ../output/$bitsize/$percent/output_$instance.log"
+    command="./solvers/maplesat_cb instances/$bitsize/temp/$percent/instance_$instance.cnf | tee outputs/$bitsize/$percent/output_$instance.log"
 fi
 echo $command
 eval $command

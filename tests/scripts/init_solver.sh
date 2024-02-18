@@ -1,6 +1,6 @@
 #!/bin/bash
 include_d=0
-while getopts b:p:i:d: flag
+while getopts b:p:i:d flag
 do
     case "${flag}" in
         b) bitsize=${OPTARG};;
