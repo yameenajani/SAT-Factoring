@@ -53,7 +53,7 @@ If you want to include the decryption exponent `d` in the SAT instance, use the 
 ```
 ./run_test.sh -b {bitsize} -p {percent} -i {instance number} -d
 ```
-If you want to use the SAT+CAS approach that calls Coppersmith from with the solver, use the `-l` flag:
+If you want to use the SAT+CAS approach that calls Coppersmith from within the solver, use the `-l` flag:
 ```
 ./run_test.sh -b {bitsize} -p {percent} -i {instance number} -l
 ```
