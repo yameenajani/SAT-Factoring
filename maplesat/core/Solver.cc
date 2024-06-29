@@ -96,8 +96,8 @@ static DoubleOption  opt_reward_multiplier (_cat, "reward-multiplier", "Reward m
 #endif
 
 mpz_t mpz_NUM;
-mpz_t mpz_X, pq_temp, p_temp, q_temp, pow2, pow4;
-mpz_t cs_prime;
+mpz_t mpz_X, pq_temp, p_temp, q_temp, pow2, pow4, inv_factor;
+//mpz_t cs_prime;
 int prime_len;
 int p_msb_count;
 vector<char> bits_msb_p1;
@@ -209,19 +209,22 @@ double hc_time = 0;
 Solver::~Solver()
 {
     mpz_clear(mpz_NUM);
-    mpz_clear(cs_prime);
-    mpz_clears(mpz_X, pq_temp, p_temp, q_temp, pow2, pow4, NULL);
+    //mpz_clear(cs_prime);
+    mpz_clears(mpz_X, pq_temp, p_temp, q_temp, pow2, pow4, inv_factor, NULL);
 }
 
 void Solver::setInstanceVariables()
 {
     mpz_init_set_str(mpz_NUM, cb_num.c_str(), 10);
-    mpz_init(cs_prime);
-    mpz_inits(mpz_X, pq_temp, p_temp, q_temp, pow2, pow4, NULL);
+    //mpz_init(cs_prime);
+    mpz_inits(mpz_X, pq_temp, p_temp, q_temp, pow2, pow4, inv_factor, NULL);
     mpz_root(mpz_X, mpz_NUM, 5);
     mpz_tdiv_q_2exp(mpz_X, mpz_X, 2);
     prime_len = p_msb_var;
-    p_msb_count = prime_len - mpz_sizeinbase(mpz_X, 2);
+    p_msb_count = prime_len - (mpz_sizeinbase(mpz_X, 2) - 1); // Subtract 1 as mpz_sizeinbase(mpz_X, 2) gives floor(lg(X))+1
+    mpz_set_ui(inv_factor, 1);
+    mpz_mul_2exp(inv_factor, inv_factor, p_msb_count);
+    mpz_invert(inv_factor, inv_factor, mpz_NUM);
     bits_msb_p1.reserve(prime_len);
     bits_lsb_p1.reserve(p_msb_count);
     bits_msb_p2.reserve(prime_len);
@@ -458,19 +461,17 @@ void nCr(mpz_t rop, int n, int r, mpz_t p_tilda) {
     mpz_clears(t1, t2, NULL);
 }
 
-bool coppersmith(mpz_t N_num, mpz_t p_tilda_num, int is_lsb) {
+bool coppersmith(mpz_t p_tilda_num, int is_lsb) {
     cs_count += 1;
-    mpz_t prime, num, to_make_monic, t, t2, p_tilda;
+    mpz_t prime, t, t2, p_tilda, mpz_val;
     unsigned int len_knownbits = p_msb_count, h = 2, k;
     k = 2*h;
 
-    mpz_inits(prime, num, to_make_monic, t, t2, p_tilda, NULL);
+    mpz_inits(prime, t, t2, p_tilda, mpz_val, NULL);
 
     if(is_lsb) {
-        mpz_ui_pow_ui(to_make_monic, 2, len_knownbits);
-        mpz_invert(to_make_monic, to_make_monic, N_num);
-        mpz_mul(to_make_monic, to_make_monic, p_tilda_num);
-        mpz_set(p_tilda, to_make_monic);
+        mpz_mul(p_tilda, inv_factor, p_tilda_num);
+        mpz_mod(p_tilda, p_tilda, mpz_NUM); // Reduce constant term mod N
     } else {
         mpz_set(p_tilda, p_tilda_num);
     }
@@ -555,24 +556,19 @@ bool coppersmith(mpz_t N_num, mpz_t p_tilda_num, int is_lsb) {
     {
         if(fmpz_poly_degree(&factors->p[i]) == 1 && fmpz_poly_get_coeff_ui(&factors->p[i], 1) == 1) {
             fmpz_poly_get_coeff_fmpz(fmpz_var, &factors->p[i], 0);
-            mpz_t mpz_val;
-            mpz_init(mpz_val);
             fmpz_get_mpz(mpz_val, fmpz_var);
             if(mpz_cmp_ui(mpz_val, 0)!=0)
             {
                 mpz_mul_si(mpz_val, mpz_val, -1);
-                mpz_set(num, N_num);
                 if(is_lsb) {
-                    mpz_set(prime, to_make_monic);
-                    mpz_add(prime, prime, mpz_val);
-                    mpz_gcd(prime, prime, num);
+                    mpz_mul_2exp(prime, mpz_val, len_knownbits);
+                    mpz_add(prime, prime, p_tilda_num);
                 } else {
-                    mpz_set(prime, p_tilda_num);
-                    mpz_add(prime, prime, mpz_val);
+                    mpz_add(prime, p_tilda_num, mpz_val);
                 }
-                if(mpz_divisible_p(num, prime)) {
+                if(mpz_divisible_p(mpz_NUM, prime)) {
                     val = true;
-                    mpz_set(cs_prime, prime);
+                    //mpz_set(cs_prime, prime);
                     printf("============================================================================================"); if(opt_prog_hc) printf("============="); printf("\n");
                     gmp_printf("The result from Coppersmith is - %Zd\n", mpz_val);
                     gmp_printf("One of the factors of N is - %Zd\n", prime);
@@ -581,7 +577,6 @@ bool coppersmith(mpz_t N_num, mpz_t p_tilda_num, int is_lsb) {
                     val = false;
                 }
             }
-            mpz_clear(mpz_val);
         } else {
             val = false;
         }
@@ -598,7 +593,7 @@ bool coppersmith(mpz_t N_num, mpz_t p_tilda_num, int is_lsb) {
       }
     }
 
-    mpz_clears(prime, num, to_make_monic, t, t2, p_tilda, NULL);
+    mpz_clears(prime, t, t2, p_tilda, mpz_val, NULL);
 
     delete FPlllMat;
 
@@ -758,14 +753,14 @@ void Solver::callbackFunction(bool complete, vec<vec<Lit> >& out_learnts, Lit& b
             }
             cs_count_lsb_p1++;
             double start = cpuTime();
-            bool res = coppersmith(mpz_NUM, mpz_p_tilda, 1);
+            bool res = coppersmith(mpz_p_tilda, 1);
             double end = cpuTime();
             cs_time += end - start;
             if(res) {
                 cout << "Coppersmith Successful!" << endl;
                 cout << "Result from lo bits" << endl;
                 cout << "Coppersmith was called " + to_string(cs_count) + " times." << endl;
-                vec<Lit> clauses;
+                /*vec<Lit> clauses;
                 size_t bitLength = mpz_sizeinbase(cs_prime, 2);
                 int j = p_lsb_var-1;
 
@@ -775,7 +770,7 @@ void Solver::callbackFunction(bool complete, vec<vec<Lit> >& out_learnts, Lit& b
 
                     clauses.push(mkLit(j++, bitValue?false:true));
                     addClause_(clauses);
-                }
+                }*/
                 printStats();
                 printf("\nSATISFIABLE\n");
                 exit(10);
@@ -801,14 +796,14 @@ void Solver::callbackFunction(bool complete, vec<vec<Lit> >& out_learnts, Lit& b
             }
             cs_count_lsb_p2++;
             double start = cpuTime();
-            bool res = coppersmith(mpz_NUM, mpz_p_tilda, 1);
+            bool res = coppersmith(mpz_p_tilda, 1);
             double end = cpuTime();
             cs_time += end - start;
             if(res) {
                 cout << "Coppersmith Successful!" << endl;
                 cout << "Result from lo bits" << endl;
                 cout << "Coppersmith was called " + to_string(cs_count) + " times." << endl;
-                vec<Lit> clauses;
+                /*vec<Lit> clauses;
                 size_t bitLength = mpz_sizeinbase(cs_prime, 2);
                 int j = q_lsb_var-1;
 
@@ -818,7 +813,7 @@ void Solver::callbackFunction(bool complete, vec<vec<Lit> >& out_learnts, Lit& b
 
                     clauses.push(mkLit(j++, bitValue?false:true));
                     addClause_(clauses);
-                }
+                }*/
                 printStats();
                 printf("\nSATISFIABLE\n");
                 exit(10);
@@ -849,7 +844,7 @@ void Solver::callbackFunction(bool complete, vec<vec<Lit> >& out_learnts, Lit& b
             }
             cs_count_msb_p1++;
             double start = cpuTime();
-            bool res = coppersmith(mpz_NUM, mpz_p_tilda, 0);
+            bool res = coppersmith(mpz_p_tilda, 0);
             double end = cpuTime();
             cs_time += end - start;
             if(res) {
@@ -886,7 +881,7 @@ void Solver::callbackFunction(bool complete, vec<vec<Lit> >& out_learnts, Lit& b
             }
             cs_count_msb_p2++;
             double start = cpuTime();
-            bool res = coppersmith(mpz_NUM, mpz_p_tilda, 0);
+            bool res = coppersmith(mpz_p_tilda, 0);
             double end = cpuTime();
             cs_time += end - start;
             if(res) {

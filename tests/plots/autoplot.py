@@ -24,10 +24,10 @@ def get_summary(bitsize, percent, num_instances, include_d):
     for i in range(1, num_instances+1):
         try:
             if not include_d:
-                with open("../outputs/{}/{}/SAT/output_{}.log".format(bitsize, percent, i), "r") as satf:
+                with open("../maplesat_outputs/{}/{}/SAT/output_{}.log".format(bitsize, percent, i), "r") as satf:
                     sat_out = satf.readlines()
             else:
-                with open("../outputs/{}/with_d/{}/SAT/output_{}.log".format(bitsize, percent, i), "r") as satf:
+                with open("../maplesat_outputs/{}/with_d/{}/SAT/output_{}.log".format(bitsize, percent, i), "r") as satf:
                     sat_out = satf.readlines()
         except:
             sat_timings.append(np.inf)
@@ -48,10 +48,10 @@ def get_summary(bitsize, percent, num_instances, include_d):
 
         try:
             if not include_d:
-                with open("../outputs/{}/{}/output_{}.log".format(bitsize, percent, i), "r") as f:
+                with open("../maplesat_outputs/{}/{}/output_{}.log".format(bitsize, percent, i), "r") as f:
                     out = f.readlines()
             else:
-                with open("../outputs/{}/with_d/{}/output_{}.log".format(bitsize, percent, i), "r") as f:
+                with open("../maplesat_outputs/{}/with_d/{}/output_{}.log".format(bitsize, percent, i), "r") as f:
                     out = f.readlines()
         except:
             cas_lo_times.append(np.inf)
@@ -118,18 +118,18 @@ def get_summary(bitsize, percent, num_instances, include_d):
     print()
 
     if not include_d:
-        if not (os.path.exists("../outputs/{}/{}".format(bitsize, percent))):
-            os.makedirs("../outputs/{}/{}".format(bitsize, percent))
+        if not (os.path.exists("../maplesat_outputs/{}/{}".format(bitsize, percent))):
+            os.makedirs("../maplesat_outputs/{}/{}".format(bitsize, percent))
         # Write the summary to a CSV file
-        with open("../outputs/{}/{}/summary.csv".format(bitsize, percent), "w+", newline="") as csvfile:
+        with open("../maplesat_outputs/{}/{}/summary.csv".format(bitsize, percent), "w+", newline="") as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["Mean SAT Time", "Median SAT Time", "Min SAT Time", "Max SAT Time", "Mean CAS (Low) Time", "Median CAS (Low) Time", "Min CAS (Low) Time", "Max CAS (Low) Time", "Mean CAS (Low) CS Time", "Median CAS (Low) CS Time", "Min CAS (Low) CS Time", "Max CAS (Low) CS Time", "Mean CAS (Low) CS Count", "Median CAS (Low) CS Count", "Min CAS (Low) CS Count", "Max CAS (Low) CS Count"])
             csvwriter.writerow([mean_sat_time, median_sat_time, min_sat_time, max_sat_time, mean_cas_lo_time, median_cas_lo_time, min_cas_lo_time, max_cas_lo_time, mean_cs_lo_time, median_cs_lo_time, min_cs_lo_time, max_cs_lo_time, mean_cs_lo_count, median_cs_lo_count, min_cs_lo_count, max_cs_lo_count])
     else:
-        if not (os.path.exists("../outputs/{}/with_d/{}".format(bitsize, percent))):
-            os.makedirs("../outputs/{}/{}".format(bitsize, percent))
+        if not (os.path.exists("../maplesat_outputs/{}/with_d/{}".format(bitsize, percent))):
+            os.makedirs("../maplesat_outputs/{}/{}".format(bitsize, percent))
         # Write the summary to a CSV file
-        with open("../outputs/{}/with_d/{}/summary.csv".format(bitsize, percent), "w+", newline="") as csvfile:
+        with open("../maplesat_outputs/{}/with_d/{}/summary.csv".format(bitsize, percent), "w+", newline="") as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["Mean SAT Time", "Median SAT Time", "Min SAT Time", "Max SAT Time", "Mean CAS (Low) Time", "Median CAS (Low) Time", "Min CAS (Low) Time", "Max CAS (Low) Time", "Mean CAS (Low) CS Time", "Median CAS (Low) CS Time", "Min CAS (Low) CS Time", "Max CAS (Low) CS Time", "Mean CAS (Low) CS Count", "Median CAS (Low) CS Count", "Min CAS (Low) CS Count", "Max CAS (Low) CS Count"])
             csvwriter.writerow([mean_sat_time, median_sat_time, min_sat_time, max_sat_time, mean_cas_lo_time, median_cas_lo_time, min_cas_lo_time, max_cas_lo_time, mean_cs_lo_time, median_cs_lo_time, min_cs_lo_time, max_cs_lo_time, mean_cs_lo_count, median_cs_lo_count, min_cs_lo_count, max_cs_lo_count])
@@ -167,9 +167,9 @@ def main():
             print("Processing {}".format(val))
             get_summary(val//2, percent, num_instances, include_d)
             if not include_d:
-                df = pd.read_csv("../outputs/{}/{}/summary.csv".format(val//2, percent))
+                df = pd.read_csv("../maplesat_outputs/{}/{}/summary.csv".format(val//2, percent))
             else:
-                df = pd.read_csv("../outputs/{}/with_d/{}/summary.csv".format(val//2, percent))
+                df = pd.read_csv("../maplesat_outputs/{}/with_d/{}/summary.csv".format(val//2, percent))
             if param==1:
                 pname = "Median"
                 sat_times.append(df["Median SAT Time"][0])
@@ -207,9 +207,9 @@ def main():
         ax.plot(keysizes, sat_times, label="SAT", marker='.')
 
         if not include_d:
-            plt.title("SAT+CAS vs SAT - Varying N \n{}% Known Bits".format(percent))
+            plt.title("SAT+CAS vs SAT - Varying Bitlength of $N$\n{}% Known Bits of $p$ and $q$".format(percent))
         else:
-            plt.title("SAT+CAS vs SAT - Varying N (low public exponent)\n{}% Known Bits".format(percent))
+            plt.title("SAT+CAS vs SAT - Varying Bitlength of $N$\n{}% Known Bits of $p$, $q$, and $d$".format(percent))
 
         plt.legend(loc="upper left")
 
@@ -227,11 +227,11 @@ def main():
         # hi_times = []
         for val in percentages:
             print("Processing {}%".format(val))
-            get_summary(nbits//2, val, include_d)
+            get_summary(nbits//2, val, num_instances, include_d)
             if not include_d:
-                df = pd.read_csv("../outputs/{}/{}/summary.csv".format(nbits//2, val))
+                df = pd.read_csv("../maplesat_outputs/{}/{}/summary.csv".format(nbits//2, val))
             else:
-                df = pd.read_csv("../outputs/{}/with_d/{}/summary.csv".format(nbits//2, val))
+                df = pd.read_csv("../maplesat_outputs/{}/with_d/{}/summary.csv".format(nbits//2, val))
             if param==1:
                 pname = "Median"
                 sat_times.append(df["Median SAT Time"][0])
@@ -261,9 +261,9 @@ def main():
         ax2.plot(percentages, sat_times, label="SAT", marker='.')
         ax2.invert_xaxis()
         if not include_d:
-            plt.title("SAT+CAS vs SAT - Varying % Known Bits \n{}-bit N".format(nbits))
+            plt.title("SAT+CAS vs SAT - {}-bit $N$\nVarying % Known Bits of $p$ and $q$".format(nbits))
         else:
-            plt.title("SAT+CAS vs SAT - Varying % Known Bits \n{}-bit N (low public exponent)".format(nbits))
+            plt.title("SAT+CAS vs SAT - {}-bit $N$\nVarying % Known Bits of $p$, $q$, and $d$".format(nbits))
         plt.legend(loc="upper left")
 
         # Show the plot

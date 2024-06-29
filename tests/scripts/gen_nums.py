@@ -1,13 +1,14 @@
 #!/usr/bin/python3
 
-from sage.all import ZZ, random_prime, set_random_seed
 import sys
 import json
 import os.path
 #from bs4 import BeautifulSoup
 #import urllib.request
 
-def generate_test_case(bitsize):
+def generate_test_case(bitsize, instance_num):
+    from sage.all import ZZ, random_prime, set_random_seed
+    set_random_seed(instance_num)
     p = ZZ(0)
     q = ZZ(0)
     while (p-1)%3 != 1 or (q-1)%3 != 1:
@@ -23,7 +24,6 @@ def main():
 
     bitsize = int(sys.argv[1])
     instance_num = int(sys.argv[2])
-    set_random_seed(instance_num)
 
     if os.path.exists("../data/{}/data_{}.json".format(bitsize, instance_num)):
         return
@@ -35,7 +35,7 @@ def main():
             n = data['n']
         """
     else:
-        p, q, n = generate_test_case(bitsize)
+        p, q, n = generate_test_case(bitsize, instance_num)
 
     """
     weblink = "https://cgi.luddy.indiana.edu/~sabry/cnf.cgi?factor={}&Adder=nbit&Multiplier=recursive".format(n)

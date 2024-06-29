@@ -3,7 +3,6 @@
 import sys
 import json
 from ast import literal_eval
-from sage.all import ZZ, floor, sqrt
 from random import sample, seed
 
 # fetch_data reads the encoding and fetches the lists of variables corresponding to p, q and d
@@ -127,8 +126,8 @@ def add_vars(clauses, vars, add_list):
 
     return clauses, vars, True
 
-def convert_to_binary(dec_val):
-    return bin(dec_val).split("b")[1]
+def convert_to_binary(dec_val, width):
+    return bin(dec_val).split("b")[1].zfill(width)
 
 if __name__ == "__main__":
     if len(sys.argv) <= 5:
@@ -158,7 +157,9 @@ if __name__ == "__main__":
     encoding = sys.stdin.readlines()
     clauses = []
     if include_d:
+        from sage.all import ZZ, floor, sqrt
         p_list, q_list, d_list, vars, N = fetch_data(encoding)
+        n = len(d_list)
 
         two_p_list = p_list.copy()
         two_p_list.append(-1)
@@ -195,10 +196,7 @@ if __name__ == "__main__":
         addition_list.reverse()
 
         sum_val = 2*N + 3
-        sum_val = convert_to_binary(sum_val)
-        pad_len = len(addition_list) - len(sum_val)
-        for _ in range(pad_len):
-            sum_val = "0" + sum_val
+        sum_val = convert_to_binary(sum_val, len(addition_list))
 
         for i in range(len(addition_list)):
             if sum_val[i] == "1":
@@ -214,10 +212,7 @@ if __name__ == "__main__":
         phi = (p-1)*(q-1)
         e = ZZ(3)
         d_real_val = e.inverse_mod(phi)
-        d_real_bin = convert_to_binary(d_real_val)
-        pad_len = len(d_list_copy) - len(d_real_bin)
-        for _ in range(pad_len):
-            d_real_bin = "0" + d_real_bin
+        d_real_bin = convert_to_binary(d_real_val, n)
 
         set_known_d_bits_count = int(len(d_list_copy) * d_percent/100)
         random_d_bits = sample(d_list_copy, set_known_d_bits_count)
@@ -229,26 +224,22 @@ if __name__ == "__main__":
                 clauses.append("\n-{} 0".format(bit))
 
         dbar_val1 = (2*N + 3) // 3
-        dbar_val2 = dbar_val1 - floor(2*(1+sqrt(2))*sqrt(N)/3)
-        dbar_val1 = convert_to_binary(dbar_val1)
-        dbar_val2 = convert_to_binary(dbar_val2)
+        dbar_val2 = dbar_val1 - floor(sqrt(2*N))
+        dbar_val1 = convert_to_binary(dbar_val1, n)
+        dbar_val2 = convert_to_binary(dbar_val2, n)
 
         dbar_val = ""
-        for i in range(min(len(dbar_val1), len(dbar_val2))):
+        for i in range(n):
             if dbar_val1[i] == dbar_val2[i]:
                 dbar_val += dbar_val1[i]
             else:
                 break
-
-        for _ in range(pad_len):
-            dbar_val = "0" + dbar_val
 
         for i in range(len(dbar_val)):
             if dbar_val[i] == "1":
                 clauses.append("\n{} 0".format(d_list_copy[i]))
             else:
                 clauses.append("\n-{} 0".format(d_list_copy[i]))
-
 
         l = encoding[14]
         l = l.split(" ")

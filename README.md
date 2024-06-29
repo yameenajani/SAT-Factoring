@@ -2,7 +2,7 @@
 
 This repository contains the code used in this project. The dependencies and steps to run the code are provided below.
 
-The logic for the CAS implementation integrated with the SAT solver is available in [`maplesat/core/Solver.cc`](maplesat/core/Solver.cc) from `line 450` to `line 912`.
+The logic for the CAS implementation integrated with the SAT solver is available in [`maplesat/core/Solver.cc`](maplesat/core/Solver.cc) from `line 452` to `line 907`.
 
 The scripts used to create and modify the SAT instances are available in the [`tests/scripts/`](tests/scripts/) directory. The purpose of each script is briefly outlined below -
 * [`gen_nums.py`](tests/scripts/gen_nums.py) - Used to generate data (RSA modulus).
@@ -41,7 +41,7 @@ __<u>Folder structure for tests</u>__
 <br>
 
 > [!IMPORTANT]
-> <br>The _bitsize_ correspond to the number of bits in the primes, not the RSA modulus. If the _bitsize_ is 128, then `len(p) = len(q) = 128` and `len(N) = 256`.
+> <br>The _bitsize_ parameter corresponds to the number of bits in the primes, not the RSA modulus. If _bitsize_ is 128, then `len(p) = len(q) = 128` and `len(N) = 256` (or `255`).
 
 __<u>How to run</u>__
 

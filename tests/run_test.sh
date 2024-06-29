@@ -48,7 +48,7 @@ fi
 
 if [ ! -f encoder/unbal/encoder ]; then
     echo "Encoder not found; compiling using GHC ..."
-    cd encoder/unbal; ghc encoder; cd -
+    cd encoder/unbal; ghc encoder; cd "$OLDPWD"
 fi
 
 data_file="data/${bitsize}/data_${instance_num}.json"
@@ -56,7 +56,7 @@ cubes_file="instances/${bitsize}/cubes/unbal/cubes_${instance_num}.json"
 
 # Creating data file
 mkdir -p data/$bitsize
-cd scripts; ./gen_nums.py $bitsize $instance_num; cd -
+cd scripts; ./gen_nums.py $bitsize $instance_num; cd "$OLDPWD"
 
 num=$(grep n $data_file | awk '{print $2}')
 
@@ -64,9 +64,9 @@ num=$(grep n $data_file | awk '{print $2}')
 mkdir -p instances/$bitsize/cubes/unbal
 ./scripts/generate_cubes.py $bitsize $instance_num
 
-printf "Generating instance ${instance_num} with ${bitsize} bits"
+printf "Generating instance ${instance_num} with ${bitsize}-bit primes"
 if [ $include_d -eq 1 ]; then
-    printf " (including d)"
+    printf " (info on decryption exponent included)"
 fi
 printf " and setting ${percent}%% randomly chosen bits to be known\n"
 
@@ -74,7 +74,7 @@ encoding=$(./encoder/unbal/encoder $num n-bit recursive | ./scripts/modify_cnf.p
 
 if [ ! -f solvers/maplesat ]; then
     echo "MapleSAT not found; compiling..."
-    cd ../maplesat; ./compile_maplesat.sh; cd -
+    cd ../maplesat; ./compile_maplesat.sh; cd "$OLDPWD"
 fi
 
 echo "Running MapleSAT with arguments $margs"
