@@ -526,7 +526,7 @@ bool coppersmith(mpz_t p_tilda_num, int is_lsb) {
       }
     }
 
-    lll_reduction(*FPlllMat, LLL_DEF_DELTA, LLL_DEF_ETA, LM_PROVED, FT_DEFAULT, 0, LLL_DEFAULT);
+    lll_reduction(*FPlllMat, LLL_DEF_DELTA, LLL_DEF_ETA, LM_WRAPPER, FT_DEFAULT, 0, LLL_DEFAULT);
 
     fmpz_poly_t pol;
     fmpz_poly_init(pol);
