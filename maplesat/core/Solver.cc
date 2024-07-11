@@ -1598,8 +1598,8 @@ lbool Solver::search(int nof_conflicts)
                                (int)conflicts, 
                                (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
                                (int)max_learnts, nLearnts(), (double)learnts_literals/nLearnts(), progressEstimate()*100);
-                    if(opt_lo || opt_hi) printf(" %10ld |", cs_count);
-                    if(opt_prog_hc) printf(" %10ld |", hc_count);
+                    if(!opt_only_sat && (opt_lo || opt_hi)) printf(" %10ld |", cs_count);
+                    if(!opt_only_sat && opt_prog_hc) printf(" %10ld |", hc_count);
                     printf("\n");
                     fflush(stdout);
                 }
@@ -1810,10 +1810,10 @@ lbool Solver::solve_()
             printf("Almost Conflict : %d\n", ALMOST_CONFLICT);
             printf("Anti Exploration : %d\n", ANTI_EXPLORATION);
         }
-        printf("============================[ Search Statistics ]=============================="); if(opt_lo || opt_hi) printf("============="); if(opt_prog_hc) printf("============="); printf("\n");
-        printf("| Conflicts |          ORIGINAL         |          LEARNT          | Progress |"); if(opt_lo || opt_hi) printf(" CS Clauses |"); if(opt_prog_hc) printf(" HC Branch  |"); printf("\n");
-        printf("|           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |"); if(opt_lo || opt_hi) printf("            |"); if(opt_prog_hc) printf("            |"); printf("\n");
-        printf("==============================================================================="); if(opt_lo || opt_hi) printf("============="); if(opt_prog_hc) printf("============="); printf("\n");
+        printf("============================[ Search Statistics ]=============================="); if(!opt_only_sat) { if(opt_lo || opt_hi) printf("============="); if(opt_prog_hc) printf("============="); } printf("\n");
+        printf("| Conflicts |          ORIGINAL         |          LEARNT          | Progress |"); if(!opt_only_sat) { if(opt_lo || opt_hi) printf(" CS Clauses |"); if(opt_prog_hc) printf(" HC Branch  |"); } printf("\n");
+        printf("|           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |"); if(!opt_only_sat) { if(opt_lo || opt_hi) printf("            |"); if(opt_prog_hc) printf("            |"); } printf("\n");
+        printf("==============================================================================="); if(!opt_only_sat) { if(opt_lo || opt_hi) printf("============="); if(opt_prog_hc) printf("============="); } printf("\n");
     }
 
     // Search:
@@ -1826,7 +1826,7 @@ lbool Solver::solve_()
     }
 
     if (verbosity >= 1) {
-        printf("==============================================================================="); if(opt_lo || opt_hi) printf("============="); if(opt_prog_hc) printf("============="); printf("\n");
+        printf("==============================================================================="); if(!opt_only_sat) { if(opt_lo || opt_hi) printf("============="); if(opt_prog_hc) printf("============="); } printf("\n");
     }
 
     if (status == l_True){
