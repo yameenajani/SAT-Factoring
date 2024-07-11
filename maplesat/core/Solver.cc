@@ -29,7 +29,11 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <gmp.h>
 #include <cstring>
 #include <fplll.h>
-#include "flint/fmpz_polyxx.h"
+//#include "flint/fmpz_polyxx.h"
+#include "flint/flint.h"
+#include "flint/fmpz.h"
+#include "flint/fmpz_poly.h"
+#include "flint/fmpz_poly_factor.h"
 
 
 #include <math.h>
@@ -45,7 +49,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 using namespace Minisat;
 using namespace std;
 using namespace fplll;
-using namespace flint;
+//using namespace flint;
 
 //=================================================================================================
 // Options:
