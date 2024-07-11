@@ -4,6 +4,7 @@ import sys
 from random import sample, seed
 import json
 import math
+import os.path
 
 def convert_to_binary(dec_val):
     return bin(dec_val).split("b")[1]
@@ -23,6 +24,9 @@ def main():
         cubes_filename = "instances/{}/cubes/unbal/cubes_{}.json".format(bitsize, instance_num)
     else:
         cubes_filename = "instances/{}/cubes/cubes_{}.json".format(bitsize, instance_num)
+
+    if os.path.exists(cubes_filename): # Don't recreate the cubes file if it already exists
+        return
 
     percentages = [90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25]
 
