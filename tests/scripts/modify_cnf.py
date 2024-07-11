@@ -157,7 +157,7 @@ if __name__ == "__main__":
     encoding = sys.stdin.readlines()
     clauses = []
     if include_d:
-        from sage.all import ZZ, floor, sqrt
+        from math import floor, sqrt
         p_list, q_list, d_list, vars, N = fetch_data(encoding)
         n = len(d_list)
 
@@ -210,8 +210,8 @@ if __name__ == "__main__":
             q = f['q']
         
         phi = (p-1)*(q-1)
-        e = ZZ(3)
-        d_real_val = e.inverse_mod(phi)
+        e = 3
+        d_real_val = pow(e, -1, phi) # Needs Python 3.8+
         d_real_bin = convert_to_binary(d_real_val, n)
 
         set_known_d_bits_count = int(len(d_list_copy) * d_percent/100)
