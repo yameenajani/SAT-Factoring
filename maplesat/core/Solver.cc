@@ -89,7 +89,6 @@ static BoolOption    opt_hi                (_cat, "hi",          "Call coppersmi
 static BoolOption    opt_lo                (_cat, "lo",          "Call coppersmith with low bits", true);
 static BoolOption    opt_cs_both_primes    (_cat, "cs-both-primes", "Call coppersmith with low bits", false);
 static BoolOption    opt_prog_hc           (_cat, "prog-hc",     "Use programmatic Heninger/Shacham constraints for branching", false);
-static IntOption     opt_cb_wait           (_cat, "cb-wait",     "How many conflicts to wait before calling Coppersmith", 1, IntRange(1, 10000));
 // static StringOption  opt_cb_num            (_cat, "cb-num",      "The co-prime to be factored");
 // static IntOption     opt_p_lsb_var         (_cat, "p-lsb-var",   "The variable correseponding to the LSB of p", 1, IntRange(1, INT32_MAX));
 // static IntOption     opt_p_msb_var         (_cat, "p-msb-var",   "The variable correseponding to the MSB of p", 1, IntRange(1, INT32_MAX));
@@ -144,7 +143,6 @@ Solver::Solver() :
   , clbk_lo_bits     (opt_lo)
   , cs_both_primes   (opt_cs_both_primes)
   , prog_hc          (opt_prog_hc)
-  , cb_wait          (opt_cb_wait)
 //   , cb_num           (opt_cb_num)
 //   , p_lsb_var        (opt_p_lsb_var)
 //   , p_msb_var        (opt_p_msb_var)
@@ -605,7 +603,6 @@ bool coppersmith(mpz_t p_tilda_num, int is_lsb) {
 }
 
 long next_cs_call = 0;
-int wait = 0;
 // A callback function for programmatic interface. If the callback detects conflicts, then
 // refine the clause database by adding clauses to out_learnts. This function is called
 // very frequently, if the analysis is expensive then add code to skip the analysis on
@@ -684,7 +681,7 @@ void Solver::callbackFunction(bool complete, vec<vec<Lit> >& out_learnts, Lit& b
         }
     }
 
-    if((opt_lo || opt_hi) && (wait%opt_cb_wait==0) && next_cs_call <= conflicts)
+    if((opt_lo || opt_hi) && next_cs_call <= conflicts)
     {
         next_cs_call = conflicts + 1;
         call_coppersmith_msb_p1 = true;
@@ -901,7 +898,6 @@ void Solver::callbackFunction(bool complete, vec<vec<Lit> >& out_learnts, Lit& b
             mpz_clear(mpz_p_tilda);
         }
     }
-    wait++;
 }
 
 bool Solver::assertingClause(CRef confl) {
