@@ -87,7 +87,7 @@ static DoubleOption  opt_garbage_frac      (_cat, "gc-frac",     "The fraction o
 static BoolOption    opt_only_sat          (_cat, "only-sat",    "Run only SAT without callback", false);
 static BoolOption    opt_hi                (_cat, "hi",          "Call coppersmith with high bits", false);
 static BoolOption    opt_lo                (_cat, "lo",          "Call coppersmith with low bits", true);
-static BoolOption    opt_cs_both_primes    (_cat, "cs-both-primes", "Call coppersmith with low bits", false);
+static BoolOption    opt_cs_both_primes    (_cat, "cs-both-primes", "Call coppersmith on both primes", false);
 static BoolOption    opt_prog_hc           (_cat, "prog-hc",     "Use programmatic Heninger/Shacham constraints for branching", false);
 // static StringOption  opt_cb_num            (_cat, "cb-num",      "The co-prime to be factored");
 // static IntOption     opt_p_lsb_var         (_cat, "p-lsb-var",   "The variable correseponding to the LSB of p", 1, IntRange(1, INT32_MAX));
