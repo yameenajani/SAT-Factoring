@@ -621,15 +621,10 @@ int wait = 0;
 void Solver::callbackFunction(bool complete, vec<vec<Lit> >& out_learnts, Lit& branch_lit) {
     if(opt_only_sat) return;
 
-    bool start_coppersmith = true;
-    if(opt_prog_hc) {
+    if(opt_prog_hc) { // Programmatic Heninger/Shacham branching option (not used in ISSAC'24 paper)
         double hc_start = cpuTime();
         int plsb = p_lsb_var - 1 + bit_i;
         int qlsb = q_lsb_var - 1 + bit_i;
-        int ptrack = plsb;
-        int qtrack = qlsb;
-
-        int pbit, qbit;
 
         if(bit_i == 0) { // Compute pq_temp, p_temp, q_temp from scratch
             mpz_set_ui(pq_temp, 0);
@@ -656,8 +651,8 @@ void Solver::callbackFunction(bool complete, vec<vec<Lit> >& out_learnts, Lit& b
                 mpz_add(pq_temp, pq_temp, pow4);
             }
 
-            mpz_mul_ui(pow2, pow2, 2);
-            mpz_mul_ui(pow4, pow4, 4);
+            mpz_mul_2exp(pow2, pow2, 1);
+            mpz_mul_2exp(pow4, pow4, 2);
 
             plsb++;
             qlsb++;
@@ -686,11 +681,10 @@ void Solver::callbackFunction(bool complete, vec<vec<Lit> >& out_learnts, Lit& b
 
         if(branch_lit != lit_Undef) {
             hc_count++;
-            start_coppersmith = false;
         }
     }
 
-    if(start_coppersmith && (wait%opt_cb_wait==0) && next_cs_call <= conflicts)
+    if((opt_lo || opt_hi) && (wait%opt_cb_wait==0) && next_cs_call <= conflicts)
     {
         next_cs_call = conflicts + 1;
         call_coppersmith_msb_p1 = true;
