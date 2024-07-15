@@ -56,7 +56,7 @@ using namespace fplll;
 
 void printClause(vec<Lit>& clause) {
     for(int i = 0; i < clause.size(); i++) {
-        printf("%s%d ", sign(clause[i]) ? "-" : "", i+1);
+        printf("%s%d ", sign(clause[i]) ? "-" : "", var(clause[i])+1);
     }
     printf("0\n");
     fflush(stdout);
