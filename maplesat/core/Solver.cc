@@ -678,6 +678,7 @@ void Solver::callbackFunction(bool complete, vec<vec<Lit> >& out_learnts, Lit& b
 
         if(branch_lit != lit_Undef) {
             hc_count++;
+            return;
         }
     }
 
