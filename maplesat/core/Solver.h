@@ -136,18 +136,12 @@ public:
 
     int       restart_first;      // The initial restart limit.                                                                (default 100)
     double    restart_inc;        // The factor with which the restart limit is multiplied in each restart.                    (default 1.5)
-    bool      clbk_st;
-    bool      clbk_hi_bits;
-    bool      clbk_lo_bits;
-    bool      cs_both_primes;
-    bool      prog_hc;
-    int       cb_wait;
-    // const char*      cb_num;
-    std::string cb_num;
-    int       p_lsb_var;
-    int       p_msb_var;
-    int       q_lsb_var;
-    int       q_msb_var;
+    /* The next 5 parameters concerning the factoring instance are initialized in Dimacs.h */
+    std::string cb_num;           // String representing the semiprime N to factor (in base 10)
+    int       p_lsb_var;          // The variable correseponding to the LSB of p
+    int       p_msb_var;          // The variable correseponding to the MSB of p
+    int       q_lsb_var;          // The variable correseponding to the LSB of q
+    int       q_msb_var;          // The variable correseponding to the MSB of q
     double    learntsize_factor;  // The intitial limit for learnt clauses is a factor of the original clauses.                (default 1 / 3)
     double    learntsize_inc;     // The limit for learnt clauses is multiplied with this factor each restart.                 (default 1.1)
 

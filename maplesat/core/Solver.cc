@@ -89,11 +89,6 @@ static BoolOption    opt_hi                (_cat, "hi",          "Call coppersmi
 static BoolOption    opt_lo                (_cat, "lo",          "Call coppersmith with low bits", true);
 static BoolOption    opt_cs_both_primes    (_cat, "cs-both-primes", "Call coppersmith on both primes", false);
 static BoolOption    opt_prog_hc           (_cat, "prog-hc",     "Use programmatic Heninger/Shacham constraints for branching", false);
-// static StringOption  opt_cb_num            (_cat, "cb-num",      "The co-prime to be factored");
-// static IntOption     opt_p_lsb_var         (_cat, "p-lsb-var",   "The variable correseponding to the LSB of p", 1, IntRange(1, INT32_MAX));
-// static IntOption     opt_p_msb_var         (_cat, "p-msb-var",   "The variable correseponding to the MSB of p", 1, IntRange(1, INT32_MAX));
-// static IntOption     opt_q_lsb_var         (_cat, "q-lsb-var",   "The variable correseponding to the LSB of q", 1, IntRange(1, INT32_MAX));
-// static IntOption     opt_q_msb_var         (_cat, "q-msb-var",   "The variable correseponding to the MSB of q", 1, IntRange(1, INT32_MAX));
 #if BRANCHING_HEURISTIC == CHB
 static DoubleOption  opt_reward_multiplier (_cat, "reward-multiplier", "Reward multiplier", 0.9, DoubleRange(0, true, 1, true));
 #endif
@@ -138,16 +133,6 @@ Solver::Solver() :
   , garbage_frac     (opt_garbage_frac)
   , restart_first    (opt_restart_first)
   , restart_inc      (opt_restart_inc)
-  , clbk_st          (opt_only_sat)
-  , clbk_hi_bits     (opt_hi)
-  , clbk_lo_bits     (opt_lo)
-  , cs_both_primes   (opt_cs_both_primes)
-  , prog_hc          (opt_prog_hc)
-//   , cb_num           (opt_cb_num)
-//   , p_lsb_var        (opt_p_lsb_var)
-//   , p_msb_var        (opt_p_msb_var)
-//   , q_lsb_var        (opt_q_lsb_var)
-//   , q_msb_var        (opt_q_msb_var)
 
     // Parameters (the rest):
     //
